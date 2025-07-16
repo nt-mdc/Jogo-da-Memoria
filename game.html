@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tarefa 05</title>
+    <link rel="stylesheet" href="bootstrap.css" />
+    <style>
+        .gameContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .gameCard {
+            border: 1px solid;
+            border-radius: 16px;
+            font-size: 2em;
+            color: transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+            /* deixa os cards quadrados */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .select {
+            color: black;
+            background-color: transparent !important;
+        }
+
+        @media (max-width: 500px) {
+            .gameCard {
+                font-size: 3em;
+            }
+
+            .gameContainer {
+            grid-template-columns: repeat(3, minmax(80px, 1fr));
+
+        }
+        }
+    </style>
+</head>
+
+<body class="p-3 d-flex justify-content-center align-items-center flex-column">
+    <header class="text-center">
+        <h2>Jogo da Memória</h2>
+        <p>
+            <span>Tentantivas: <span id="tentField">0</span></span> |
+            <span>Tempo: <span id="timeField">0</span>s</span>
+        </p>
+    </header>
+    <main id="gameContainer" class="gameContainer lg-w-50 mx-auto"></main>
+    <div id="winAlert" class="alert alert-success w-50 mx-auto mt-5 text-center d-none">
+        Parabens! Você Venceu!
+    </div>
+
+    <button type="button" id="btnNewGame" class="btn btn-primary mx-auto mt-5 d-none">Novo Jogo</button>
+
+    <script>
+        const icons = ["🎈", "🧨", "✨", "🎃", "🎄", "⚽"];
+        const cards = icons.flatMap((icon, i) => [{ icon, i }, { icon, i },]).sort(() => Math.random() - 0.5);
+        let selectCard = null;
+        let matchs = 0, tentativas = 0, timer = 0;
+
+        const timerInterval = setInterval(() => (timeField.textContent = ++timer), 1000);
+
+        cards.forEach((item, idx) => {
+            let card = document.createElement("div");
+            card.className = "gameCard bg-primary bg-opacity-75 border border-primary";
+            card.dataset.cardIdx = idx;
+            card.dataset.matchIdx = item.i;
+            card.innerHTML = item.icon;
+
+            card.onclick = () => {
+                if (card.classList.contains("matched") || card === selectCard) return;
+                card.classList.add("select");
+
+                if (!selectCard) {
+                    selectCard = card;
+                } else {
+                    tentField.innerHTML = ++tentativas;
+                    if (selectCard.dataset.matchIdx === card.dataset.matchIdx) {
+                        selectCard.classList.remove("select");
+                        card.classList.remove("select");
+
+                        selectCard.classList.add("matched", "border-success", "border-2", "text-black", "bg-transparent");
+                        card.classList.add("matched", "border-success", "border-2", "text-black", "bg-transparent");
+
+                        selectCard = null;
+                        if (++matchs == icons.length) {
+                            winAlert.classList.remove("d-none");
+                            btnNewGame.classList.remove("d-none");
+                            clearInterval(timerInterval);
+                        }
+                    } else {
+                        setTimeout(() => {
+                            card.classList.remove("select");
+                            selectCard.classList.remove("select");
+                            selectCard = null;
+                        }, 500);
+                    }
+                }
+            };
+
+            gameContainer.appendChild(card);
+        });
+
+        btnNewGame.onclick = () => {
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>
